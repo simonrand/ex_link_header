@@ -1,10 +1,16 @@
 # ExLinkHeader
 
-**TODO: Add description**
+Parse HTTP link headers in Elixir.
+
+Goal is to implement all in section 5 of http://tools.ietf.org/id/draft-nottingham-http-link-header-06.txt,
+however this is currently lacking support for:
+
+- multiple `link-param` values
+- multiple values within link-param keys
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+The package can be installed as:
 
   1. Add ex_link_header to your list of dependencies in `mix.exs`:
 
