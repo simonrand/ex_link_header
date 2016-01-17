@@ -7,6 +7,8 @@ defmodule ExLinkHeader.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     description: description,
+     package: package,
      deps: deps]
   end
 
@@ -31,4 +33,17 @@ defmodule ExLinkHeader.Mixfile do
       {:credo, "~> 0.2", only: [:dev, :test]}
     ]
   end
+
+  defp description do
+    """
+    Parse HTTP link headers in Elixir.
+    """
+  end
+
+  defp package do
+      [# These are the default files included in the package
+       maintainers: ["Simon Rand"],
+       licenses: ["Apache 2.0"],
+       links: %{"GitHub" => "https://github.com/simonrand/ex_link_header"}]
+    end
 end
