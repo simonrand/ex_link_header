@@ -4,6 +4,8 @@ defmodule ExLinkHeader do
   HTTP link header parser
   """
 
+  @regex_format ~r{<(.+)>; (.+)}
+
   def parse("") do
     %{}
   end
@@ -22,8 +24,13 @@ defmodule ExLinkHeader do
 
   defp extract(links) do
     links
-    |> Enum.map(fn link ->
-        [_, url, params] = Regex.run(~r{<(.+)>; (.+)}, link)
+    |> Enum.filter_map(fn link ->
+        case Regex.run(@regex_format, link) do
+          nil -> false
+          _ -> true
+        end
+      end, fn link ->
+        [_, url, params] = Regex.run(@regex_format, link)
         {url, parse_params(params)}
       end)
   end

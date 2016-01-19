@@ -149,5 +149,13 @@ defmodule ExLinkHeaderTest do
     assert links == %{}
   end
 
+  test "parsing nonsense" do
+    link_header = "nonsense"
+
+    links = ExLinkHeader.parse(link_header)
+
+    assert links == %{}
+  end
+
 
 end
