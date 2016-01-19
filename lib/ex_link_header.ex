@@ -23,10 +23,10 @@ defmodule ExLinkHeader do
   end
 
   defp parse_links(links) do
-
     parsed_links = Enum.filter_map(links, fn link ->
-      [_, param] = Regex.run(~r{<[^>]+>; (\w+)="?[a-z]+"?.+}, link)
-      is_rel?(param)
+      [_, url, param] = Regex.run(~r{<([^>]+)>; (\w+)="?[a-z]+"?.+}, link)
+
+      valid_url?(url) && is_rel?(param)
     end, fn link ->
         [_, url, name] = Regex.run(~r{<([^>]+)>; \w+="?([a-z]+)"?}, link)
 
@@ -46,6 +46,15 @@ defmodule ExLinkHeader do
 
     parsed_links
     |> Enum.into(%{})
+  end
+
+  defp valid_url?(url) do
+    case URI.parse(url) do
+      %URI{host: nil} -> false
+      %URI{scheme: nil} -> false
+      %URI{path: nil} -> false
+      uri -> true
+    end
   end
 
 end

@@ -73,6 +73,24 @@ defmodule ExLinkHeaderTest do
       }
   end
 
+
+  test "parsing a header with an invalid url" do
+    link_header =
+      "<https://api.github.com/user/simonrand/repos?per_page=100>; rel=\"next\", " <>
+      "<https//api.github.com/user/simonrand/repos?page=3>; rel=\"last\""
+
+    links = ExLinkHeader.parse(link_header)
+
+    assert links ==
+      %{"next" => %{
+          url: "https://api.github.com/user/simonrand/repos?per_page=100",
+          page: nil,
+          per_page: "100",
+          rel: "next"
+        }
+      }
+  end
+
   test "parsing a header including a link without a relationship param" do
     link_header =
       "<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=next, " <>
