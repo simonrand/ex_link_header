@@ -13,22 +13,35 @@ defmodule ExLinkHeader do
   end
 
   def parse(link_header) do
-    links = String.split(link_header, ", ")
-
-    parse_links(links)
+    link_header
+    |> split
+    |> extract
+    |> filter
+    |> format
   end
 
-  defp is_rel?(name) do
-    name == "rel"
+  defp extract(links) do
+    links
+    |> Enum.map(fn link ->
+        [_, url, params] = Regex.run(~r{<(.+)>; (.+)}, link)
+        {url, parse_params(params)}
+      end)
   end
 
-  defp parse_links(links) do
-    parsed_links = Enum.filter_map(links, fn link ->
-      [_, url, param] = Regex.run(~r{<([^>]+)>; (\w+)="?[a-z]+"?.+}, link)
+  defp filter(links) do
+    links
+    |> Enum.filter(fn link ->
+        {url, params} = link
+        valid_url?(url) && has_rel?(params)
+      end)
+  end
 
-      valid_url?(url) && is_rel?(param)
-    end, fn link ->
-        [_, url, name] = Regex.run(~r{<([^>]+)>; \w+="?([a-z]+)"?}, link)
+  defp format(links) do
+    links
+    |> Enum.map(fn link ->
+        {url, params} = link
+
+        %{rel: rel} = params
 
         page = case Regex.run(~r{.+[\?|\&]page=(\d+)\??}, url) do
           [_, page] -> page
@@ -40,12 +53,29 @@ defmodule ExLinkHeader do
           nil -> nil
         end
 
-        {name, %{ url: url, page: page, per_page: per_page, rel: name }}
-      end
-    )
-
-    parsed_links
+        {rel, Map.merge(%{page: page, per_page: per_page, url: url}, params)}
+      end)
     |> Enum.into(%{})
+  end
+
+  defp has_rel?(params) do
+    params
+    |> Map.has_key?(:rel)
+  end
+
+  defp parse_params(params) do
+    params
+    |> String.split("; ")
+    |> Enum.map(fn param ->
+        [_, name, value] = Regex.run(~r{(\w+)=\"?(\w+)\"?}, param)
+        {String.to_atom(name), value}
+      end)
+    |> Enum.into(%{})
+  end
+
+  defp split(links) do
+    links
+    |> String.split(", ")
   end
 
   defp valid_url?(url) do
@@ -53,7 +83,7 @@ defmodule ExLinkHeader do
       %URI{host: nil} -> false
       %URI{scheme: nil} -> false
       %URI{path: nil} -> false
-      uri -> true
+      _ -> true
     end
   end
 

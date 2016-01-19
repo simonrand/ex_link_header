@@ -27,6 +27,23 @@ defmodule ExLinkHeaderTest do
       }
   end
 
+  test "parsing a header with extra params" do
+    link_header =
+      "<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next\"; ler=\"page\""
+
+    links = ExLinkHeader.parse(link_header)
+
+    assert links ==
+      %{"next" => %{
+          url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2",
+          page: "2",
+          per_page: "100",
+          rel: "next",
+          ler: "page"
+        }
+      }
+  end
+
   test "parsing a header with unquoted relationships" do
     link_header =
       "<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=next, " <>
