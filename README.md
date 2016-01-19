@@ -14,7 +14,7 @@ The package can be installed as:
   1. Add ex_link_header to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:ex_link_header, "~> 0.0.1"}]
+          [{:ex_link_header, "~> 0.0.2"}]
         end
 
   2. Ensure ex_link_header is started before your application:
