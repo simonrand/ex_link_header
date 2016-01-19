@@ -24,12 +24,9 @@ defmodule ExLinkHeader do
 
   defp extract(links) do
     links
-    |> Enum.filter_map(fn link ->
-        case Regex.run(@regex_format, link) do
-          nil -> false
-          _ -> true
-        end
-      end, fn link ->
+    |> Enum.filter_map(fn(link) ->
+        Regex.match?(@regex_format, link)
+      end, fn(link) ->
         [_, url, params] = Regex.run(@regex_format, link)
         {url, parse_params(params)}
       end)
@@ -37,7 +34,7 @@ defmodule ExLinkHeader do
 
   defp filter(links) do
     links
-    |> Enum.filter(fn link ->
+    |> Enum.filter(fn(link) ->
         {url, params} = link
         valid_url?(url) && has_rel?(params)
       end)
@@ -45,7 +42,7 @@ defmodule ExLinkHeader do
 
   defp format(links) do
     links
-    |> Enum.map(fn link ->
+    |> Enum.map(fn(link) ->
         {url, params} = link
 
         %{rel: rel} = params
@@ -73,7 +70,7 @@ defmodule ExLinkHeader do
   defp parse_params(params) do
     params
     |> String.split("; ")
-    |> Enum.map(fn param ->
+    |> Enum.map(fn(param) ->
         [_, name, value] = Regex.run(~r{(\w+)=\"?(\w+)\"?}, param)
         {String.to_atom(name), value}
       end)
