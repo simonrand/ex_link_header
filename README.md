@@ -7,6 +7,10 @@ however this is currently lacking support for:
 
 - multiple values within the `rel` link-param
 
+## Code Status
+
+[![Build Status](https://travis-ci.org/simonrand/ex_link_header.svg?branch=master)](https://travis-ci.org/simonrand/ex_link_header)
+
 ## Installation
 
 The package can be installed as:
@@ -23,3 +27,8 @@ The package can be installed as:
           [applications: [:ex_link_header]]
         end
 
+## License
+
+Released under the Apache 2 License.
+
+See [LICENSE](LICENSE) for more information.
