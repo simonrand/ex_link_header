@@ -4,10 +4,11 @@ defmodule ExLinkHeaderTest do
 
   require ExLinkHeader
 
-  test "parsing a header with next and last links and different order params" do
+  test "parsing a header with next and last links, different order url params and different spacing between links" do
     link_header =
       "<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next\", " <>
-      "<https://api.github.com/user/simonrand/repos?page=3&per_page=100>; rel=\"last\""
+      "<https://api.github.com/user/simonrand/repos?page=3&per_page=100>; rel=\"last\"," <>
+      "<https://api.github.com/user/simonrand/repos?page=1&per_page=100>; rel=\"first\""
 
     links = ExLinkHeader.parse(link_header)
 
@@ -23,13 +24,19 @@ defmodule ExLinkHeaderTest do
           page: "3",
           per_page: "100",
           rel: "last"
+        },
+        "first" => %{
+          url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100",
+          page: "1",
+          per_page: "100",
+          rel: "first"
         }
       }
   end
 
-  test "parsing a header with extra params" do
+  test "parsing a header with extra params and different param spacing" do
     link_header =
-      "<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next\"; ler=\"page\""
+      "<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next\";ler=\"page\""
 
     links = ExLinkHeader.parse(link_header)
 
@@ -40,6 +47,66 @@ defmodule ExLinkHeaderTest do
           per_page: "100",
           rel: "next",
           ler: "page"
+        }
+      }
+  end
+
+  test "parsing a header with multiple rel values and spaces" do
+    link_header =
+      "<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next last\"; ler=\"page\", " <>
+      "<https://api.github.com/user/simonrand/repos?page=3&per_page=100>; rel=\"prev first \""
+
+    links = ExLinkHeader.parse(link_header)
+
+    assert links ==
+      %{"next" => %{
+          url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2",
+          page: "2",
+          per_page: "100",
+          rel: "next",
+          ler: "page"
+        },
+        "last" => %{
+          url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2",
+          page: "2",
+          per_page: "100",
+          rel: "last",
+          ler: "page"
+        },
+        "prev" => %{
+          url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100",
+          page: "3",
+          per_page: "100",
+          rel: "prev"
+        },
+        "first" => %{
+          url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100",
+          page: "3",
+          per_page: "100",
+          rel: "first"
+        }
+      }
+  end
+
+  test "parsing a header with next and last and no space between links" do
+    link_header =
+      "<https://api.github.com/user/simonrand/repos>; rel=\"next\"," <>
+      "<https://api.github.com/user/simonrand/repos>; rel=\"last\""
+
+    links = ExLinkHeader.parse(link_header)
+
+    assert links ==
+      %{"next" => %{
+          url: "https://api.github.com/user/simonrand/repos",
+          page: nil,
+          per_page: nil,
+          rel: "next"
+        },
+        "last" => %{
+          url: "https://api.github.com/user/simonrand/repos",
+          page: nil,
+          per_page: nil,
+          rel: "last"
         }
       }
   end

@@ -4,7 +4,7 @@ defmodule ExLinkHeader do
   HTTP link header parser
   """
 
-  @regex_format ~r{<(.+)>; (.+)}
+  @regex_format ~r{<?(.+)>; (.+)}
 
   def parse("") do
     %{}
@@ -16,28 +16,41 @@ defmodule ExLinkHeader do
 
   def parse(link_header) do
     link_header
-    |> split
+    |> String.split(~r{,\s*<}, trim: true)
     |> extract
     |> filter
+    |> extract_relationships
     |> format
   end
 
   defp extract(links) do
+    Enum.filter_map(links, fn(link) ->
+      Regex.match?(@regex_format, link)
+    end, fn(link) ->
+      [_, url, params] = Regex.run(@regex_format, link)
+      {url, parse_params(params)}
+    end)
+  end
+
+  defp extract_relationships(links) do
     links
-    |> Enum.filter_map(fn(link) ->
-        Regex.match?(@regex_format, link)
-      end, fn(link) ->
-        [_, url, params] = Regex.run(@regex_format, link)
-        {url, parse_params(params)}
+    |> Enum.flat_map(fn(link) ->
+        {url, params} = link
+        %{rel: rels} = params
+
+        rels
+        |> String.split(" ", trim: true)
+        |> Enum.map(fn(rel) ->
+            {url, Map.merge(params, %{rel: rel})}
+          end)
       end)
   end
 
   defp filter(links) do
-    links
-    |> Enum.filter(fn(link) ->
-        {url, params} = link
-        valid_url?(url) && has_rel?(params)
-      end)
+    Enum.filter(links, fn(link) ->
+      {url, params} = link
+      valid_url?(url) && has_rel?(params)
+    end)
   end
 
   defp format(links) do
@@ -63,23 +76,17 @@ defmodule ExLinkHeader do
   end
 
   defp has_rel?(params) do
-    params
-    |> Map.has_key?(:rel)
+    Map.has_key?(params, :rel)
   end
 
   defp parse_params(params) do
     params
-    |> String.split("; ")
+    |> String.split(";", trim: true)
     |> Enum.map(fn(param) ->
-        [_, name, value] = Regex.run(~r{(\w+)=\"?(\w+)\"?}, param)
+        [_, name, value] = Regex.run(~r{(\w+)=\"?([\w\s]+)\"?}, param)
         {String.to_atom(name), value}
       end)
     |> Enum.into(%{})
-  end
-
-  defp split(links) do
-    links
-    |> String.split(", ")
   end
 
   defp valid_url?(url) do
