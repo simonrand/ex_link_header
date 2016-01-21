@@ -2,10 +2,12 @@
 
 Parse HTTP link headers in Elixir.
 
-Goal is to implement all in section 5 of http://tools.ietf.org/id/draft-nottingham-http-link-header-06.txt,
-however this is currently lacking support for:
+# Usage
 
-- multiple values within the `rel` link-param
+```elixir
+ExLinkHeader.parse("<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next\", <https://api.github.com/user/simonrand/repos?page=3&per_page=100>; rel=\"last\", <https://api.github.com/user/simonrand/repos?page=1&per_page=100>; rel=\"first\"")
+#=> %{"first" => %{page: "1", per_page: "100", rel: "first", url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100"}, "last" => %{page: "3", per_page: "100", rel: "last", url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100"}, "next" => %{page: "2", per_page: "100", rel: "next", url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2"} }
+```
 
 ## Code Status
 
