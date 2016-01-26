@@ -5,8 +5,11 @@ Parse HTTP link headers in Elixir.
 # Usage
 
 ```elixir
-ExLinkHeader.parse("<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next\", <https://api.github.com/user/simonrand/repos?page=3&per_page=100>; rel=\"last\", <https://api.github.com/user/simonrand/repos?page=1&per_page=100>; rel=\"first\"")
+ExLinkHeader.parse!("<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next\", <https://api.github.com/user/simonrand/repos?page=3&per_page=100>; rel=\"last\", <https://api.github.com/user/simonrand/repos?page=1&per_page=100>; rel=\"first\"")
 #=> %{"first" => %{page: "1", per_page: "100", rel: "first", url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100"}, "last" => %{page: "3", per_page: "100", rel: "last", url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100"}, "next" => %{page: "2", per_page: "100", rel: "next", url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2"} }
+
+ExLinkHeader.parse!("")
+#=> ** (ExLinkHeader.ParseError) Parse error: no valid links to parse
 ```
 
 ## Code Status

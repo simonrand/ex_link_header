@@ -6,21 +6,21 @@ defmodule ExLinkHeader do
 
   @regex_format ~r{<?(.+)>; (.+)}
 
-  def parse("") do
-    %{}
+  defmodule ParseError do
+    defexception [:message]
+
+    def exception(msg), do: %__MODULE__{message: msg}
   end
 
-  def parse(nil) do
-    %{}
-  end
+  def parse(""), do: :error
+  def parse(nil), do: :error
+  def parse(link_header), do: parse_links(link_header)
 
-  def parse(link_header) do
-    link_header
-    |> String.split(~r{,\s*<}, trim: true)
-    |> extract
-    |> filter
-    |> extract_relationships
-    |> format
+  def parse!(link_header) do
+    case parse(link_header) do
+      {:ok, result} -> result
+      :error -> raise ParseError, "Parse error: no valid links to parse"
+    end
   end
 
   defp extract(links) do
@@ -32,6 +32,7 @@ defmodule ExLinkHeader do
     end)
   end
 
+  defp extract_relationships(links) when links == [], do: nil
   defp extract_relationships(links) do
     links
     |> Enum.flat_map(fn(link) ->
@@ -46,6 +47,7 @@ defmodule ExLinkHeader do
       end)
   end
 
+  defp filter(nil), do: nil
   defp filter(links) do
     Enum.filter(links, fn(link) ->
       {url, params} = link
@@ -53,30 +55,42 @@ defmodule ExLinkHeader do
     end)
   end
 
+  defp format(nil), do: parse(nil)
   defp format(links) do
-    links
-    |> Enum.map(fn(link) ->
-        {url, params} = link
+    formatted_links = links
+      |> Enum.map(fn(link) ->
+          {url, params} = link
 
-        %{rel: rel} = params
+          %{rel: rel} = params
 
-        page = case Regex.run(~r{.+[\?|\&]page=(\d+)\??}, url) do
-          [_, page] -> page
-          nil -> nil
-        end
+          page = case Regex.run(~r{.+[\?|\&]page=(\d+)\??}, url) do
+            [_, page] -> page
+            nil -> nil
+          end
 
-        per_page = case Regex.run(~r{.+[\?|\&]per_page=(\d+)\??}, url) do
-          [_, per_page] -> per_page
-          nil -> nil
-        end
+          per_page = case Regex.run(~r{.+[\?|\&]per_page=(\d+)\??}, url) do
+            [_, per_page] -> per_page
+            nil -> nil
+          end
 
-        {rel, Map.merge(%{page: page, per_page: per_page, url: url}, params)}
-      end)
-    |> Enum.into(%{})
+          {rel, Map.merge(%{page: page, per_page: per_page, url: url}, params)}
+        end)
+      |> Enum.into(%{})
+
+    {:ok, formatted_links}
   end
 
   defp has_rel?(params) do
     Map.has_key?(params, :rel)
+  end
+
+  defp parse_links(links) do
+    links
+    |> String.split(~r{,\s*<}, trim: true)
+    |> extract
+    |> filter
+    |> extract_relationships
+    |> format
   end
 
   defp parse_params(params) do
