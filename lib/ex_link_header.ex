@@ -7,6 +7,10 @@ defmodule ExLinkHeader do
   @regex_format ~r{<?(.+)>; (.+)}
 
   defmodule ParseError do
+    @moduledoc """
+    HTTP link header parse error
+    """
+
     defexception [:message]
 
     def exception(msg), do: %__MODULE__{message: msg}
@@ -47,6 +51,13 @@ defmodule ExLinkHeader do
       end)
   end
 
+  defp extract_and_parse_query(url) do
+    extracted_query = Regex.run(~r{.+\?(.+)}, url)
+
+    extracted_query
+    |> parse_query
+  end
+
   defp filter(nil), do: nil
   defp filter(links) do
     Enum.filter(links, fn(link) ->
@@ -60,20 +71,9 @@ defmodule ExLinkHeader do
     formatted_links = links
       |> Enum.map(fn(link) ->
           {url, params} = link
-
           %{rel: rel} = params
-
-          page = case Regex.run(~r{.+[\?|\&]page=(\d+)\??}, url) do
-            [_, page] -> page
-            nil -> nil
-          end
-
-          per_page = case Regex.run(~r{.+[\?|\&]per_page=(\d+)\??}, url) do
-            [_, per_page] -> per_page
-            nil -> nil
-          end
-
-          {rel, Map.merge(%{page: page, per_page: per_page, url: url}, params)}
+          params = Map.merge(params, extract_and_parse_query(url))
+          {rel, Map.merge(%{url: url}, params)}
         end)
       |> Enum.into(%{})
 
@@ -101,6 +101,17 @@ defmodule ExLinkHeader do
         {String.to_atom(name), value}
       end)
     |> Enum.into(%{})
+  end
+
+  defp parse_query(nil), do: %{page: nil, per_page: nil}
+  defp parse_query([_, query]) do
+    case URI.decode_query(query) do
+      %{"page" => page, "per_page" => per_page} ->
+        %{page: page, per_page: per_page}
+      %{"page" => page} -> %{page: page, per_page: nil}
+      %{"per_page" => per_page} -> %{page: nil, per_page: per_page}
+      _ -> parse_query(nil)
+    end
   end
 
   defp valid_url?(url) do
