@@ -16,12 +16,13 @@ defmodule ExLinkHeader do
     def exception(msg), do: %__MODULE__{message: msg}
   end
 
-  def parse(""), do: :error
-  def parse(nil), do: :error
-  def parse(link_header), do: parse_links(link_header)
+  def parse(header, defaults \\ %{})
+  def parse("", defaults), do: :error
+  def parse(nil, defaults), do: :error
+  def parse(link_header, defaults), do: parse_links(link_header, defaults)
 
-  def parse!(link_header) do
-    case parse(link_header) do
+  def parse!(link_header, defaults \\ %{}) do
+    case parse(link_header, defaults) do
       {:ok, result} -> result
       :error -> raise ParseError, "Parse error: no valid links to parse"
     end
@@ -51,11 +52,11 @@ defmodule ExLinkHeader do
       end)
   end
 
-  defp extract_and_parse_query(url) do
+  defp extract_and_parse_query(url, defaults) do
     extracted_query = Regex.run(~r{.+\?(.+)}, url)
 
     extracted_query
-    |> parse_query
+    |> parse_query(defaults)
   end
 
   defp filter(nil), do: nil
@@ -66,13 +67,13 @@ defmodule ExLinkHeader do
     end)
   end
 
-  defp format(nil), do: parse(nil)
-  defp format(links) do
+  defp format(nil, _), do: parse(nil)
+  defp format(links, defaults) do
     formatted_links = links
       |> Enum.map(fn(link) ->
           {url, params} = link
           %{rel: rel} = params
-          params = Map.merge(params, extract_and_parse_query(url))
+          params = Map.merge(params, extract_and_parse_query(url, defaults))
           {rel, Map.merge(%{url: url}, params)}
         end)
       |> Enum.into(%{})
@@ -84,13 +85,13 @@ defmodule ExLinkHeader do
     Map.has_key?(params, :rel)
   end
 
-  defp parse_links(links) do
+  defp parse_links(links, defaults) do
     links
     |> String.split(~r{,\s*<}, trim: true)
     |> extract
     |> filter
     |> extract_relationships
-    |> format
+    |> format(defaults)
   end
 
   defp parse_params(params) do
@@ -103,15 +104,17 @@ defmodule ExLinkHeader do
     |> Enum.into(%{})
   end
 
-  defp parse_query(nil), do: %{page: nil, per_page: nil}
-  defp parse_query([_, query]) do
-    case URI.decode_query(query) do
-      %{"page" => page, "per_page" => per_page} ->
-        %{page: page, per_page: per_page}
-      %{"page" => page} -> %{page: page, per_page: nil}
-      %{"per_page" => per_page} -> %{page: nil, per_page: per_page}
-      _ -> parse_query(nil)
-    end
+  defp parse_query(nil, _), do: %{page: nil, per_page: nil}
+  defp parse_query([_, query], defaults) do
+    p = URI.decode_query(query)
+    |> Map.to_list
+
+    {_, parms} = Enum.map_reduce(p, defaults, fn({k, v}, acc) ->
+        acc = Map.put(acc, String.to_atom(k), v)
+        {nil, acc}
+      end
+    )
+    parms
   end
 
   defp valid_url?(url) do
