@@ -130,7 +130,7 @@ defmodule ExLinkHeaderTest do
       "<https://api.github.com/user/simonrand/repos?per_page=100>; rel=\"next\", " <>
       "<https://api.github.com/user/simonrand/repos?page=3>; rel=\"last\""
 
-    assert ExLinkHeader.parse!(link_header) ==
+    assert ExLinkHeader.parse!(link_header, %{page: nil, per_page: nil}) ==
       %{"next" => %{
           url: "https://api.github.com/user/simonrand/repos?per_page=100",
           page: nil,
@@ -152,7 +152,7 @@ defmodule ExLinkHeaderTest do
       "<https://api.github.com/user/simonrand/repos?per_page=100>; rel=\"next\", " <>
       "<https//api.github.com/user/simonrand/repos?page=3>; rel=\"last\""
 
-    assert ExLinkHeader.parse!(link_header) ==
+    assert ExLinkHeader.parse!(link_header, %{page: nil, per_page: nil}) ==
       %{"next" => %{
           url: "https://api.github.com/user/simonrand/repos?per_page=100",
           page: nil,
@@ -181,14 +181,33 @@ defmodule ExLinkHeaderTest do
     link_header =
       "<https://api.github.com/search/repositories?q=elixir,ruby&sort=stars&order=desc>; rel=\"last\""
 
-    assert ExLinkHeader.parse!(link_header) ==
+    assert ExLinkHeader.parse!(link_header, %{page: nil, per_page: nil}) ==
       %{"last" => %{
           url: "https://api.github.com/search/repositories?q=elixir,ruby&sort=stars&order=desc",
           page: nil,
           per_page: nil,
+          rel: "last",
+          q: "elixir,ruby",
+          sort: "stars",
+          order: "desc"
+        }
+      }
+  end
+
+  test "parsing a header arbitrary params" do
+    link_header =
+      "<https://api.example.com/?q=elixir&sort=stars&order=desc>; rel=\"last\""
+
+    assert ExLinkHeader.parse!(link_header) ==
+      %{"last" => %{
+          url: "https://api.example.com/?q=elixir&sort=stars&order=desc",
+          q: "elixir",
+          sort: "stars",
+          order: "desc",
           rel: "last"
         }
       }
+
   end
 
   test "parsing an empty or invalid link header raises" do
