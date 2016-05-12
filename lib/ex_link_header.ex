@@ -109,12 +109,12 @@ defmodule ExLinkHeader do
     p = URI.decode_query(query)
     |> Map.to_list
 
-    {_, parms} = Enum.map_reduce(p, defaults, fn({k, v}, acc) ->
+    {_, params} = Enum.map_reduce(p, defaults, fn({k, v}, acc) ->
         acc = Map.put(acc, String.to_atom(k), v)
         {nil, acc}
       end
     )
-    parms
+    params
   end
 
   defp valid_url?(url) do

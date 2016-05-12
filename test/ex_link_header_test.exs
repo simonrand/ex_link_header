@@ -130,29 +130,27 @@ defmodule ExLinkHeaderTest do
       "<https://api.github.com/user/simonrand/repos?per_page=100>; rel=\"next\", " <>
       "<https://api.github.com/user/simonrand/repos?page=3>; rel=\"last\""
 
-    assert ExLinkHeader.parse!(link_header, %{page: nil, per_page: nil}) ==
+    assert ExLinkHeader.parse!(link_header) ==
       %{"next" => %{
           url: "https://api.github.com/user/simonrand/repos?per_page=100",
-          page: nil,
           per_page: "100",
           rel: "next"
         },
         "last" => %{
           url: "https://api.github.com/user/simonrand/repos?page=3",
           page: "3",
-          per_page: nil,
           rel: "last"
         }
       }
   end
 
 
-  test "parsing a header with an invalid url" do
+  test "parsing a header with an invalid url and a default for value page" do
     link_header =
       "<https://api.github.com/user/simonrand/repos?per_page=100>; rel=\"next\", " <>
       "<https//api.github.com/user/simonrand/repos?page=3>; rel=\"last\""
 
-    assert ExLinkHeader.parse!(link_header, %{page: nil, per_page: nil}) ==
+    assert ExLinkHeader.parse!(link_header, %{page: nil}) ==
       %{"next" => %{
           url: "https://api.github.com/user/simonrand/repos?per_page=100",
           page: nil,
@@ -177,7 +175,7 @@ defmodule ExLinkHeaderTest do
       }
   end
 
-  test "parsing a header with a comma in a link" do
+  test "parsing a header with a comma in a link and default values" do
     link_header =
       "<https://api.github.com/search/repositories?q=elixir,ruby&sort=stars&order=desc>; rel=\"last\""
 
@@ -194,7 +192,7 @@ defmodule ExLinkHeaderTest do
       }
   end
 
-  test "parsing a header arbitrary params" do
+  test "parsing a header with arbitrary params and no defaults" do
     link_header =
       "<https://api.example.com/?q=elixir&sort=stars&order=desc>; rel=\"last\""
 
