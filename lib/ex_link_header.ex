@@ -121,7 +121,6 @@ defmodule ExLinkHeader do
     case URI.parse(url) do
       %URI{host: nil} -> false
       %URI{scheme: nil} -> false
-      %URI{path: nil} -> false
       _ -> true
     end
   end

@@ -204,6 +204,22 @@ defmodule ExLinkHeaderTest do
 
   end
 
+  test "parsing a header with no path, arbitrary params and no defaults" do
+    link_header =
+      "<https://api.example.com?q=elixir&sort=stars&order=desc>; rel=\"last\""
+
+    assert ExLinkHeader.parse!(link_header) ==
+      %{"last" => %{
+          url: "https://api.example.com?q=elixir&sort=stars&order=desc",
+          q: "elixir",
+          sort: "stars",
+          order: "desc",
+          rel: "last"
+        }
+      }
+
+  end
+
   test "parsing an empty or invalid link header raises" do
     assert_raise ParseError, fn -> ExLinkHeader.parse!("") end
     assert_raise ParseError, fn -> ExLinkHeader.parse!("nonsense") end
