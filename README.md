@@ -17,7 +17,7 @@ ExLinkHeader.parse!("")
 Links with no `page` or `per_page` param previously returned `nil` by default for both these params, even if they did not exist - this is now no longer the case, `page` and `per_page` are now treated like any other query params. To return `nil` for these values you can supply defaults for any param when calling `parse` to ensure default values are returned, for example:
 
 ```
-ExLinkHeader.parse!("<https://api.github.com/user/simonrand/repos?per_page=100>; rel=\"next\", ", %{page: nil})
+ExLinkHeader.parse!("<https://api.github.com/user/simonrand/repos?per_page=100>; rel=\"next\"", %{page: nil})
 #=> %{"next" => %{
         url: "https://api.github.com/user/simonrand/repos?per_page=100",
         page: nil,
