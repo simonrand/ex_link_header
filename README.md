@@ -1,15 +1,41 @@
 # ExLinkHeader
 
-Parse HTTP link headers in Elixir.
+Parse or build HTTP Link headers in Elixir.
 
 # Usage
 
 ```elixir
 ExLinkHeader.parse!("<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next\", <https://api.github.com/user/simonrand/repos?page=3&per_page=100>; rel=\"last\", <https://api.github.com/user/simonrand/repos?page=1&per_page=100>; rel=\"first\"")
-#=> %{"first" => %{page: "1", per_page: "100", rel: "first", url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100"}, "last" => %{page: "3", per_page: "100", rel: "last", url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100"}, "next" => %{page: "2", per_page: "100", rel: "next", url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2"} }
+#=> %ExLinkHeader{
+ first: %ExLinkHeaderEntry{host: "api.github.com",
+  path: "/user/simonrand/repos", q_params: %{page: "1", per_page: "100"},
+  scheme: "https", t_attributes: %{},
+  url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100"},
+ next: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
+  q_params: %{page: "2", per_page: "100"}, scheme: "https", t_attributes: %{},
+  url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2"},
+ last: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
+  q_params: %{page: "3", per_page: "100"}, scheme: "https", t_attributes: %{},
+  url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100"},
+ ...}
 
 ExLinkHeader.parse!("")
 #=> ** (ExLinkHeader.ParseError) Parse error: no valid links to parse
+```
+
+```elixir
+iex(1)> %ExLinkHeader{                                                            
+...(1)>  first: %ExLinkHeaderEntry{host: "api.github.com",
+...(1)>   path: "/user/simonrand/repos", q_params: %{page: "1", per_page: "100"},
+...(1)>   scheme: "https", t_attributes: %{},
+...(1)>   url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100"},
+...(1)>  next: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
+...(1)>   q_params: %{page: "2", per_page: "100"}, scheme: "https", t_attributes: %{},
+...(1)>   url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2"},
+...(1)>  last: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
+...(1)>   q_params: %{page: "3", per_page: "100"}, scheme: "https", t_attributes: %{},
+...(1)>   url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100"}} |> ExLinkHeader.build
+"<https://api.github.com//user/simonrand/repos?page=3&per_page=100>; rel=\"last\", <https://api.github.com//user/simonrand/repos?page=2&per_page=100>; rel=\"next\", <https://api.github.com//user/simonrand/repos?page=1&per_page=100>; rel=\"first\""
 ```
 
 ## Note a change in v0.0.4
