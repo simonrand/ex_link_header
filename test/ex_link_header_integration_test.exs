@@ -9,7 +9,7 @@ defmodule ExLinkHeaderIntegrationTest do
     link = %ExLinkHeader{
       next: %ExLinkHeaderEntry{host: host}
     }
-    link_h = ExLinkHeader.build(link) 
+    link_h = ExLinkHeader.build(link)
 
     parsed = ExLinkHeader.parse!(link_h)
     assert Map.get(parsed, :next) ==  %ExLinkHeaderEntry{
@@ -25,10 +25,10 @@ defmodule ExLinkHeaderIntegrationTest do
 
     link = %ExLinkHeader{
       next: %ExLinkHeaderEntry{host: host,
-        q_params: %{page: 5, q: "elixir"}
+        params: %{page: 5, q: "elixir"}
       }
     }
-    link_h = ExLinkHeader.build(link) 
+    link_h = ExLinkHeader.build(link)
 
     # this assertions may fail, since Maps are not ordered.
     # need to find a way to better check without relying on
@@ -39,7 +39,7 @@ defmodule ExLinkHeaderIntegrationTest do
       scheme: "http",
       host: "www.example.com",
       path: nil,
-      q_params: %{page: "5", q: "elixir"}
+      params: %{page: "5", q: "elixir"}
   }
   end
 
@@ -75,10 +75,10 @@ defmodule ExLinkHeaderIntegrationTest do
 
     link = %ExLinkHeader{
       next: %ExLinkHeaderEntry{host: host,
-        t_attributes: %{hreflang: "en", title: "mytitle"}
+        attributes: %{hreflang: "en", title: "mytitle"}
       }
     }
-    link_h = ExLinkHeader.build(link) 
+    link_h = ExLinkHeader.build(link)
 
     parsed = ExLinkHeader.parse!(link_h)
     assert Map.get(parsed, :next) ==  %ExLinkHeaderEntry{
@@ -86,7 +86,7 @@ defmodule ExLinkHeaderIntegrationTest do
       scheme: "http",
       host: "www.example.com",
       path: nil,
-      t_attributes: %{hreflang: "en", title: "mytitle"}
+      attributes: %{hreflang: "en", title: "mytitle"}
     }
   end
 end

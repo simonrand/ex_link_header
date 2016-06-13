@@ -7,7 +7,7 @@ defmodule ExLinkHeaderBuildTest do
   test "build raises if wrong query params are passed" do
     link = %ExLinkHeader{
       next: %ExLinkHeaderEntry{host: "www.example.com",
-        q_params: %{q: 'elixir'}
+        params: %{q: 'elixir'}
       }
     }
     assert_raise BuildError, fn -> ExLinkHeader.build(link) end
@@ -23,7 +23,7 @@ defmodule ExLinkHeaderBuildTest do
         scheme: :https
       }
     }
-    link_h = ExLinkHeader.build(link) 
+    link_h = ExLinkHeader.build(link)
 
     assert link_h == "<https://" <> host <> ">; rel=\"" <> rel <> "\""
   end
@@ -35,7 +35,7 @@ defmodule ExLinkHeaderBuildTest do
     link = %ExLinkHeader{
       next: %ExLinkHeaderEntry{host: host}
     }
-    link_h = ExLinkHeader.build(link) 
+    link_h = ExLinkHeader.build(link)
 
     assert link_h == "<http://" <> host <> ">; rel=\"" <> rel <> "\""
   end
@@ -46,10 +46,10 @@ defmodule ExLinkHeaderBuildTest do
 
     link = %ExLinkHeader{
       next: %ExLinkHeaderEntry{host: host,
-        t_attributes: %{hreflang: "en", title: "mytitle"}
+        attributes: %{hreflang: "en", title: "mytitle"}
       }
     }
-    link_h = ExLinkHeader.build(link) 
+    link_h = ExLinkHeader.build(link)
 
     assert link_h == "<http://" <> host <> ">; rel=\"" <> rel <> "\"; hreflang=\"en\"; title=\"mytitle\""
   end
@@ -60,10 +60,10 @@ defmodule ExLinkHeaderBuildTest do
 
     link = %ExLinkHeader{
       next: %ExLinkHeaderEntry{host: host,
-        q_params: %{page: 5, q: "elixir"}
+        params: %{page: 5, q: "elixir"}
       }
     }
-    link_h = ExLinkHeader.build(link) 
+    link_h = ExLinkHeader.build(link)
 
     # this assertion may fail, since Maps are not ordered.
     # need to find a way to better check without relying on

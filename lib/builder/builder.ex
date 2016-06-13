@@ -26,7 +26,7 @@ defmodule ExLinkHeader.Builder do
   end
 
   defp dobuild(%ExLinkHeaderEntry{} = h, relation) do
-    q = concatenate(h.q_params, "&", false)
+    q = concatenate(h.params, "&", false)
 
     scheme = case h.scheme do
       v when is_atom(v) -> Atom.to_string(v)
@@ -48,7 +48,7 @@ defmodule ExLinkHeader.Builder do
       _ -> url
     end
 
-    attrs = case concatenate(h.t_attributes, "; ", true) do
+    attrs = case concatenate(h.attributes, "; ", true) do
       "" -> ""
       v when is_binary(v) -> "; " <> v
       _ -> ""
@@ -64,7 +64,7 @@ defmodule ExLinkHeader.Builder do
     Enum.map_join(Map.keys(map), sep, fn(key) ->
       # TODO: sanitize me (urlencode stuff ?)
       val = case Map.get(map, key) do
-        v when is_integer(v) -> Integer.to_string(v)  
+        v when is_integer(v) -> Integer.to_string(v)
         v when is_atom(v) -> Atom.to_string(v)
         v when is_binary(v) -> v
         _ -> raise BuildError, "Invalid query param value"

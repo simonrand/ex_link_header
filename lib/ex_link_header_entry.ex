@@ -1,10 +1,10 @@
 defmodule ExLinkHeaderEntry do
 
-  defstruct url: :nil,
-    scheme: "http",
+  defstruct attributes: %{},
     host: "",
+    params: %{},
     path: "",
-    q_params: %{},
-    t_attributes: %{}
+    scheme: "http",
+    url: :nil
 
 end
