@@ -111,15 +111,18 @@ defmodule ExLinkHeader.Parser do
 
   defp parse_query(nil, _), do: %{}
   defp parse_query([_, query], defaults) do
-    p = URI.decode_query(query)
-    |> Map.to_list
-
-    {_, params} = Enum.map_reduce(p, defaults, fn({k, v}, acc) ->
+    {_, params} = Enum.map_reduce(decode_query_to_list(query), defaults, fn({k, v}, acc) ->
         acc = Map.put(acc, String.to_atom(k), v)
         {nil, acc}
       end
     )
     params
+  end
+
+  defp decode_query_to_list(query) do
+    query
+    |> URI.decode_query
+    |> Map.to_list
   end
 
   defp valid_url?(url) do
