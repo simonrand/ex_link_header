@@ -8,14 +8,14 @@ Parse or build HTTP Link headers in Elixir.
 ExLinkHeader.parse!("<https://api.github.com/user/simonrand/repos?per_page=100&page=2>; rel=\"next\", <https://api.github.com/user/simonrand/repos?page=3&per_page=100>; rel=\"last\", <https://api.github.com/user/simonrand/repos?page=1&per_page=100>; rel=\"first\"")
 #=> %ExLinkHeader{
  first: %ExLinkHeaderEntry{host: "api.github.com",
-  path: "/user/simonrand/repos", q_params: %{page: "1", per_page: "100"},
-  scheme: "https", t_attributes: %{},
+  path: "/user/simonrand/repos", params: %{page: "1", per_page: "100"},
+  scheme: "https", attributes: %{},
   url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100"},
  next: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
-  q_params: %{page: "2", per_page: "100"}, scheme: "https", t_attributes: %{},
+  params: %{page: "2", per_page: "100"}, scheme: "https", attributes: %{},
   url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2"},
  last: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
-  q_params: %{page: "3", per_page: "100"}, scheme: "https", t_attributes: %{},
+  params: %{page: "3", per_page: "100"}, scheme: "https", attributes: %{},
   url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100"},
  ...}
 
@@ -24,18 +24,18 @@ ExLinkHeader.parse!("")
 ```
 
 ```elixir
-iex(1)> %ExLinkHeader{                                                            
-...(1)>  first: %ExLinkHeaderEntry{host: "api.github.com",
-...(1)>   path: "/user/simonrand/repos", q_params: %{page: "1", per_page: "100"},
-...(1)>   scheme: "https", t_attributes: %{},
-...(1)>   url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100"},
-...(1)>  next: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
-...(1)>   q_params: %{page: "2", per_page: "100"}, scheme: "https", t_attributes: %{},
-...(1)>   url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2"},
-...(1)>  last: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
-...(1)>   q_params: %{page: "3", per_page: "100"}, scheme: "https", t_attributes: %{},
-...(1)>   url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100"}} |> ExLinkHeader.build
-"<https://api.github.com//user/simonrand/repos?page=3&per_page=100>; rel=\"last\", <https://api.github.com//user/simonrand/repos?page=2&per_page=100>; rel=\"next\", <https://api.github.com//user/simonrand/repos?page=1&per_page=100>; rel=\"first\""
+%ExLinkHeader{
+ first: %ExLinkHeaderEntry{host: "api.github.com",
+  path: "/user/simonrand/repos", params: %{page: "1", per_page: "100"},
+  scheme: "https", attributes: %{},
+  url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100"},
+ next: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
+  params: %{page: "2", per_page: "100"}, scheme: "https", attributes: %{},
+  url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2"},
+ last: %ExLinkHeaderEntry{host: "api.github.com", path: "/user/simonrand/repos",
+  params: %{page: "3", per_page: "100"}, scheme: "https", attributes: %{},
+  url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100"}} |> ExLinkHeader.build
+#=> "<https://api.github.com//user/simonrand/repos?page=3&per_page=100>; rel=\"last\", <https://api.github.com//user/simonrand/repos?page=2&per_page=100>; rel=\"next\", <https://api.github.com//user/simonrand/repos?page=1&per_page=100>; rel=\"first\""
 ```
 
 ## Note a change in v0.0.4
@@ -44,14 +44,12 @@ Links with no `page` or `per_page` param previously returned `nil` by default fo
 
 ```
 ExLinkHeader.parse!("<https://api.github.com/user/simonrand/repos?per_page=100>; rel=\"next\"", %{page: nil})
-#=> %{"next" => %{
-        url: "https://api.github.com/user/simonrand/repos?per_page=100",
-        page: nil,
-        per_page: "100",
-        rel: "next"
-      }
-    }
+#=> %ExLinkHeader{next: %ExLinkHeaderEntry{attributes: %{}, host: "api.github.com",
+  params: %{page: nil, per_page: "100"}, path: "/user/simonrand/repos",
+  scheme: "https",
+  url: "https://api.github.com/user/simonrand/repos?per_page=100"}}
 ```
+_(Note: this is the struct based response for versions > 0.0.4)_
 
 ## Code Status
 
