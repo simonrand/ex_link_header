@@ -1,17 +1,7 @@
 defmodule ExLinkHeaderBuildTest do
   use ExUnit.Case
 
-  alias ExLinkHeader.BuildError
   require ExLinkHeader
-
-  test "build raises if wrong query params are passed" do
-    link = %ExLinkHeader{
-      next: %ExLinkHeaderEntry{host: "www.example.com",
-        params: %{q: 'elixir'}
-      }
-    }
-    assert_raise BuildError, fn -> ExLinkHeader.build(link) end
-  end
 
   test "build a simple link with scheme as atom" do
     rel = "next"
@@ -60,7 +50,7 @@ defmodule ExLinkHeaderBuildTest do
 
     link = %ExLinkHeader{
       next: %ExLinkHeaderEntry{host: host,
-        params: %{page: 5, q: "elixir"}
+        params: %{page: 5, q: "elixir erlang"}
       }
     }
     link_h = ExLinkHeader.build(link)
@@ -69,25 +59,30 @@ defmodule ExLinkHeaderBuildTest do
     # need to find a way to better check without relying on
     # ordering
 
-    assert link_h == "<http://" <> host <> "?page=5&q=elixir>; rel=\"" <> rel <> "\""
+    assert link_h == "<http://" <> host <> "?page=5&q=elixir+erlang>; rel=\"" <> rel <> "\""
   end
 
   test "build some simple links" do
     rel_a = "next"
     rel_b = "prev"
     host = "www.example.com"
+    path_a = "/test/path"
+    path_b = "/test space/path"
 
     link = %ExLinkHeader{
-      next: %ExLinkHeaderEntry{host: host},
-      prev: %ExLinkHeaderEntry{host: host}
+      next: %ExLinkHeaderEntry{host: host, path: path_a},
+      prev: %ExLinkHeaderEntry{host: host, path: path_b}
     }
+
+    encoded_path_a = URI.encode(path_a)
+    encoded_path_b = URI.encode(path_b)
 
     link_h = ExLinkHeader.build(link)
     #
     # relations will appear in reversed alphabetical order
     #
-    assert link_h == "<http://" <> host <> ">; rel=\"" <> rel_b <> "\", " <>
-      "<http://" <> host <> ">; rel=\"" <> rel_a <> "\""
+    assert link_h == "<http://" <> host <> encoded_path_b <> ">; rel=\"" <> rel_b <> "\", " <>
+      "<http://" <> host <> encoded_path_a <> ">; rel=\"" <> rel_a <> "\""
   end
 
 end
