@@ -19,27 +19,30 @@ defmodule ExLinkHeader.Builder do
     Enum.join(acc, ", ")
   end
 
-  defp dobuild(%ExLinkHeaderEntry{host: nil} = _h, _relation) do
+  defp build_attributes(attributes) do
+    case concatenate(attributes) do
+      "" -> ""
+      v when is_binary(v) -> "; " <> v
+      _ -> ""
+    end
   end
 
-  defp dobuild(%ExLinkHeaderEntry{host: ""} = _h, _relation) do
-  end
-
-  defp dobuild(%ExLinkHeaderEntry{} = h, relation) do
-    q = concatenate(h.q_params, "&", false)
-
-    scheme = case h.scheme do
+  defp build_scheme(scheme) do
+    case scheme do
       v when is_atom(v) -> Atom.to_string(v)
       v when is_binary(v) -> v
       _ -> raise BuildError, "Invalid scheme format/type"
     end
-    h = Map.put(h, :scheme, scheme)
+  end
 
-    url = case h.path do
-      "" -> h.scheme <> "://" <> h.host
-      p when is_binary(p) -> h.scheme <> "://" <> h.host <> "/" <> h.path
-      :nil -> h.scheme <> h.host
-      _ -> h.scheme <> h.host
+  defp build_url(scheme, host, path, params) do
+    q = URI.encode_query(params)
+
+    url = case path do
+      "" -> scheme <> "://" <> host
+      p when is_binary(p) -> scheme <> "://" <> host <> URI.encode(path)
+      :nil -> scheme <> host
+      _ -> scheme <> host
     end
 
     url = case q do
@@ -48,32 +51,31 @@ defmodule ExLinkHeader.Builder do
       _ -> url
     end
 
-    attrs = case concatenate(h.t_attributes, "; ", true) do
-      "" -> ""
-      v when is_binary(v) -> "; " <> v
-      _ -> ""
-    end
-
-    "<" <> url <> ">; rel=\"" <> Atom.to_string(relation) <> "\"" <> attrs
+    url
   end
 
-  defp dobuild(_any, _whatever) do
-  end
+  defp dobuild(%ExLinkHeaderEntry{host: nil} = _h, _relation), do: :error
+  defp dobuild(%ExLinkHeaderEntry{host: ""} = _h, _relation), do: :error
+  defp dobuild(%ExLinkHeaderEntry{} = h, relation) do
+    h = Map.put(h, :scheme, build_scheme(h.scheme))
 
-  defp concatenate(%{} = map , sep, quoted) when is_binary(sep) do
-    Enum.map_join(Map.keys(map), sep, fn(key) ->
-      # TODO: sanitize me (urlencode stuff ?)
+    url = build_url(h.scheme, h.host, h.path, h.params)
+
+    attributes = build_attributes(h.attributes)
+
+    "<" <> url <> ">; rel=\"" <> Atom.to_string(relation) <> "\"" <> attributes
+  end
+  defp dobuild(_any, _whatever), do: :error
+
+  defp concatenate(%{} = map) do
+    Enum.map_join(Map.keys(map), "; ", fn(key) ->
       val = case Map.get(map, key) do
-        v when is_integer(v) -> Integer.to_string(v)  
+        v when is_integer(v) -> Integer.to_string(v)
         v when is_atom(v) -> Atom.to_string(v)
         v when is_binary(v) -> v
         _ -> raise BuildError, "Invalid query param value"
       end
-      val = case quoted do
-        true -> "\"" <> val <> "\""
-        _ -> val
-      end
-      Atom.to_string(key) <> "=" <> val
+      Atom.to_string(key) <> "=\"" <> val <> "\""
     end)
   end
 end

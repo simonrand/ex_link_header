@@ -62,26 +62,28 @@ defmodule ExLinkHeader.Parser do
 
   defp format(nil, _), do: parse(nil)
   defp format(links, defaults) do
-    formatted_links = links
-      |> Enum.map(fn(link) ->
-          {url, params} = link
-          %{rel: rel} = params
-          t_attrs = Map.delete(params, :rel)
-          uri = URI.parse(url)
-          {String.to_atom(rel), %ExLinkHeaderEntry{
-              url: url,
-              scheme: uri.scheme,
-              host: uri.host,
-              path: uri.path,
-              q_params: extract_and_parse_query(url, defaults),
-              t_attributes: t_attrs
-            }
-          }
-        end)
-      #|> Enum.into(%{})
-    formatted_links = struct(ExLinkHeader, formatted_links)
-    #IO.inspect formatted_links
+    formatted_links = struct(ExLinkHeader, format_links(links, defaults))
     {:ok, formatted_links}
+  end
+
+  defp format_links(links, defaults) do
+    links
+    |> Enum.map(fn(link) ->
+        {url, params} = link
+        %{rel: rel} = params
+        attrs = Map.delete(params, :rel)
+        uri = URI.parse(url)
+        {
+          String.to_atom(rel), %ExLinkHeaderEntry{
+            attributes: attrs,
+            host: uri.host,
+            params: extract_and_parse_query(url, defaults),
+            path: uri.path,
+            scheme: uri.scheme,
+            url: url
+          }
+        }
+      end)
   end
 
   defp has_rel?(params) do
@@ -109,15 +111,18 @@ defmodule ExLinkHeader.Parser do
 
   defp parse_query(nil, _), do: %{}
   defp parse_query([_, query], defaults) do
-    p = URI.decode_query(query)
-    |> Map.to_list
-
-    {_, params} = Enum.map_reduce(p, defaults, fn({k, v}, acc) ->
+    {_, params} = Enum.map_reduce(decode_query_to_list(query), defaults, fn({k, v}, acc) ->
         acc = Map.put(acc, String.to_atom(k), v)
         {nil, acc}
       end
     )
     params
+  end
+
+  defp decode_query_to_list(query) do
+    query
+    |> URI.decode_query
+    |> Map.to_list
   end
 
   defp valid_url?(url) do

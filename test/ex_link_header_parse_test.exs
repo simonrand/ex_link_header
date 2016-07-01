@@ -18,21 +18,21 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "2", per_page: "100"}
+      params: %{page: "2", per_page: "100"}
     }
     assert Map.get(parsed, :last) == %ExLinkHeaderEntry{
       url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100",
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "3", per_page: "100"}
+      params: %{page: "3", per_page: "100"}
     }
     assert Map.get(parsed, :first) == %ExLinkHeaderEntry{
       url: "https://api.github.com/user/simonrand/repos?page=1&per_page=100",
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "1", per_page: "100"}
+      params: %{page: "1", per_page: "100"}
     }
   end
 
@@ -47,8 +47,8 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "2", per_page: "100"},
-      t_attributes: %{ler: "page"}
+      params: %{page: "2", per_page: "100"},
+      attributes: %{ler: "page"}
     }
   end
 
@@ -64,30 +64,30 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "2", per_page: "100"},
-      t_attributes: %{ler: "page"}
+      params: %{page: "2", per_page: "100"},
+      attributes: %{ler: "page"}
     }
     assert Map.get(parsed, :last) == %ExLinkHeaderEntry{
       url: "https://api.github.com/user/simonrand/repos?per_page=100&page=2",
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "2", per_page: "100"},
-      t_attributes: %{ler: "page"}
+      params: %{page: "2", per_page: "100"},
+      attributes: %{ler: "page"}
     }
     assert Map.get(parsed, :prev) == %ExLinkHeaderEntry{
       url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100",
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "3", per_page: "100"}
+      params: %{page: "3", per_page: "100"}
     }
     assert Map.get(parsed, :first) == %ExLinkHeaderEntry{
       url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100",
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "3", per_page: "100"}
+      params: %{page: "3", per_page: "100"}
     }
   end
 
@@ -124,14 +124,14 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "2", per_page: "100"}
+      params: %{page: "2", per_page: "100"}
     }
     assert Map.get(parsed, :last) == %ExLinkHeaderEntry{
       url: "https://api.github.com/user/simonrand/repos?page=3&per_page=100",
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "3", per_page: "100"}
+      params: %{page: "3", per_page: "100"}
     }
   end
 
@@ -147,14 +147,14 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{per_page: "100"}
+      params: %{per_page: "100"}
     }
     assert Map.get(parsed, :last) == %ExLinkHeaderEntry{
       url: "https://api.github.com/user/simonrand/repos?page=3",
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "3"}
+      params: %{page: "3"}
     }
   end
 
@@ -170,7 +170,7 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: nil, per_page: "100"}
+      params: %{page: nil, per_page: "100"}
     }
   end
 
@@ -186,7 +186,7 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.github.com",
       path: "/user/simonrand/repos",
-      q_params: %{page: "2", per_page: "100"}
+      params: %{page: "2", per_page: "100"}
     }
 
     assert Map.get(parsed, :ler) == nil
@@ -203,7 +203,7 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.github.com",
       path: "/search/repositories",
-      q_params: %{page: nil, per_page: nil, q: "elixir,ruby", sort: "stars", order: "desc"}
+      params: %{page: nil, per_page: nil, q: "elixir,ruby", sort: "stars", order: "desc"}
     }
   end
 
@@ -218,7 +218,7 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.example.com",
       path: "/",
-      q_params: %{q: "elixir", sort: "stars", order: "desc"}
+      params: %{q: "elixir", sort: "stars", order: "desc"}
     }
 
   end
@@ -234,7 +234,7 @@ defmodule ExLinkHeaderParseTest do
       scheme: "https",
       host: "api.example.com",
       path: nil,
-      q_params: %{q: "elixir", sort: "stars", order: "desc"}
+      params: %{q: "elixir", sort: "stars", order: "desc"}
     }
   end
 

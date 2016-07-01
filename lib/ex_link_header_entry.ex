@@ -1,10 +1,14 @@
 defmodule ExLinkHeaderEntry do
 
-  defstruct url: :nil,
-    scheme: "http",
+  @moduledoc """
+  Parsed HTTP link header entry
+  """
+
+  defstruct attributes: %{},
     host: "",
+    params: %{},
     path: "",
-    q_params: %{},
-    t_attributes: %{}
+    scheme: "http",
+    url: :nil
 
 end
