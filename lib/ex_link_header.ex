@@ -4,6 +4,9 @@ defmodule ExLinkHeader do
   HTTP link header parser and builder
   """
 
+  alias ExLinkHeader.Parser
+  alias ExLinkHeader.Builder
+
   #
   # Use RFC5988 Registered Relations Types
   #
@@ -69,15 +72,15 @@ defmodule ExLinkHeader do
   end
 
   def parse(header, defaults \\ %{}) do
-    ExLinkHeader.Parser.parse(header, defaults)
+    Parser.parse(header, defaults)
   end
 
   def parse!(header, defaults \\ %{}) do
-    ExLinkHeader.Parser.parse!(header, defaults)
+    Parser.parse!(header, defaults)
   end
 
-  def build(h) do
-    ExLinkHeader.Builder.build(h)
+  def build(header) do
+    Builder.build(header)
   end
 
 end
