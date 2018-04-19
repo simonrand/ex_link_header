@@ -2,14 +2,16 @@ defmodule ExLinkHeader.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :ex_link_header,
-     version: "0.0.5",
-     elixir: "~> 1.2",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     description: description(),
-     package: package(),
-     deps: deps()]
+    [
+      app: :ex_link_header,
+      version: "0.0.5",
+      elixir: "~> 1.2",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      description: description(),
+      package: package(),
+      deps: deps()
+    ]
   end
 
   # Configuration for the OTP application
@@ -41,9 +43,11 @@ defmodule ExLinkHeader.Mixfile do
   end
 
   defp package do
-      [# These are the default files included in the package
-       maintainers: ["Simon Rand"],
-       licenses: ["Apache 2.0"],
-       links: %{"GitHub" => "https://github.com/simonrand/ex_link_header"}]
-    end
+    # These are the default files included in the package
+    [
+      maintainers: ["Simon Rand"],
+      licenses: ["Apache 2.0"],
+      links: %{"GitHub" => "https://github.com/simonrand/ex_link_header"}
+    ]
+  end
 end
