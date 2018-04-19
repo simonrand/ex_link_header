@@ -1,4 +1,6 @@
 %{
   "bunt": {:hex, :bunt, "0.1.4", "a1d555a2f50d5f402a579ca08cfdc8afe15d85494bd729c9b3a46ac7266d0081", [:mix], [], "hexpm"},
   "credo": {:hex, :credo, "0.2.5", "135ad8097787df044dd006c21653ed3f886c378f8d2fed8be46593ca30182bfc", [:mix], [{:bunt, "~> 0.1.4", [hex: :bunt, repo: "hexpm", optional: false]}], "hexpm"},
+  "earmark": {:hex, :earmark, "1.2.5", "4d21980d5d2862a2e13ec3c49ad9ad783ffc7ca5769cf6ff891a4553fbaae761", [:mix], [], "hexpm"},
+  "ex_doc": {:hex, :ex_doc, "0.18.3", "f4b0e4a2ec6f333dccf761838a4b253d75e11f714b85ae271c9ae361367897b7", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, repo: "hexpm", optional: false]}], "hexpm"},
 }
